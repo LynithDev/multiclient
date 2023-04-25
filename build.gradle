@@ -1,0 +1,45 @@
+plugins {
+    id "fabric-loom" version "1.1-SNAPSHOT" apply false
+}
+
+group = "dev.lynith.multiclient"
+version = "1.0.0"
+
+subprojects {
+
+    if (!file("build.gradle").exists()) {
+        return
+    }
+
+    tasks.register("export") {
+        group = "multiclient"
+
+        if (tasks.hasProperty("build")) {
+            dependsOn(tasks.named("build"))
+        } else {
+            dependsOn(tasks.named("jar"))
+        }
+
+        doLast {
+            def inFile = "$projectDir/build/libs/${project.name}.jar"
+            def outDir = "$rootDir/build/"
+            println("Copying ${inFile} to ${outDir}")
+            copy {
+                from inFile
+                into outDir
+            }
+        }
+    }
+}
+
+tasks.register("export") {
+    group = "multiclient"
+
+    doLast {
+        subprojects.each { subproject ->
+            if (subproject.tasks.findByName("export") != null) {
+                subproject.tasks.named("export")
+            }
+        }
+    }
+}

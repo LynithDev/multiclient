@@ -1,0 +1,30 @@
+plugins {
+    id "java"
+    id "fabric-loom" version "1.1-SNAPSHOT"
+    id "legacy-looming" version "1.1-SNAPSHOT"
+}
+
+String minecraftVersion = "1.8.9"
+String yarnVersion = "1.8.9+build.458"
+String minecraftVersionWordForm = "oneeightnine"
+
+compileJava {
+    sourceCompatibility = JavaVersion.VERSION_1_8
+    targetCompatibility = JavaVersion.VERSION_1_8
+}
+
+loom {
+    setIntermediaryUrl("https://maven.legacyfabric.net/net/fabricmc/intermediary/${minecraftVersion}/intermediary-${minecraftVersion}-v2.jar")
+}
+
+remapJar {
+    sourceNamespace = "named"
+//    targetNamespace = "official"
+}
+
+dependencies {
+    compileOnly(project(":Core"))
+
+    minecraft("com.mojang:minecraft:${minecraftVersion}")
+    mappings("net.legacyfabric:yarn:${yarnVersion}:v2")
+}
