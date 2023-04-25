@@ -8,7 +8,7 @@ public class ClientStartup {
 
     public static void start(IVersion ver) {
         version = ver;
-        System.out.println("Starting Lynith Client " + version.getVersion());
+        System.out.println("Agent hooked and using Minecraft version" + version.getVersion());
     }
 
     public static IVersion getBridge() {

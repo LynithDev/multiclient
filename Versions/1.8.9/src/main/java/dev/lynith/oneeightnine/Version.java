@@ -1,7 +1,7 @@
 package dev.lynith.oneeightnine;
 
 import dev.lynith.Core.versions.IVersion;
-import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.Minecraft;
 
 public class Version implements IVersion {
 
@@ -12,12 +12,12 @@ public class Version implements IVersion {
 
     @Override
     public String getPlayerName() {
-        return MinecraftClient.getInstance().player.getName().asUnformattedString();
+        return Minecraft.getMinecraft().getSession().getUsername();
     }
 
     @Override
     public int getFps() {
-        return MinecraftClient.getCurrentFps();
+        return Minecraft.getDebugFPS();
     }
 
 }

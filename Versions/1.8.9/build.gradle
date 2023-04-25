@@ -4,6 +4,13 @@ plugins {
     id "legacy-looming" version "1.1-SNAPSHOT"
 }
 
+repositories {
+    maven {
+        name = "cursed-mappings"
+        url = "https://raw.githubusercontent.com/BleachDev/cursed-mappings/main/"
+    }
+}
+
 String minecraftVersion = "1.8.9"
 String yarnVersion = "1.8.9+build.458"
 String minecraftVersionWordForm = "oneeightnine"
@@ -18,13 +25,19 @@ loom {
 }
 
 remapJar {
+//    loom.noIntermediateMappings()
+
     sourceNamespace = "named"
-//    targetNamespace = "official"
+    targetNamespace = "official"
 }
+
+loom.noIntermediateMappings()
 
 dependencies {
     compileOnly(project(":Core"))
 
     minecraft("com.mojang:minecraft:${minecraftVersion}")
-    mappings("net.legacyfabric:yarn:${yarnVersion}:v2")
+//    mappings("net.legacyfabric:yarn:${yarnVersion}:v2")
+    mappings("net.legacyfabric:yarn:1.8.9+build.mcp")
 }
+
