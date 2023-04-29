@@ -1,35 +1,58 @@
-plugins {
-    id "fabric-loom" version "1.2.5" apply false
-    id "io.freefair.lombok" version "8.0.1" apply true
-}
-
-group = "dev.lynith.multiclient"
+group = "dev.lynith"
 version = "1.0.0"
 
 subprojects {
-
     if (!file("build.gradle").exists() || project.name == rootProject.name) {
         return
     }
 
+    repositories {
+        mavenCentral()
+        gradlePluginPortal()
+    }
+
     plugins.withId("fabric-loom") {
+        project.ext.minecraftVersion = project.name
+        Integer _minecraftVersionInt = (project.ext.minecraftVersion.split("\\.")[0] + project.ext.minecraftVersion.split("\\.")[1]).toInteger()
+        project.ext.isLegacyMinecraft = _minecraftVersionInt < 113
+        project.ext.minecraftMappings = project.ext.isLegacyMinecraft ? "net.legacyfabric:yarn:${project.ext.minecraftVersion}+build.mcp" : loom.officialMojangMappings()
+
+        repositories {
+            maven {
+                name = "Fabric"
+                url = uri("https://maven.fabricmc.net/")
+            }
+            maven {
+                name = "legacy-fabric"
+                url = uri("https://repo.legacyfabric.net/repository/legacyfabric/")
+            }
+            maven {
+                name = "Spongepowered"
+                url = uri("https://repo.spongepowered.org/maven/")
+            }
+            maven {
+                name = "cursed-mappings"
+                url = "https://raw.githubusercontent.com/BleachDev/cursed-mappings/main/"
+            }
+        }
+
+        compileJava {
+            sourceCompatibility = _minecraftVersionInt < 117 ? JavaVersion.VERSION_1_8 : JavaVersion.VERSION_17
+            targetCompatibility = _minecraftVersionInt < 117 ? JavaVersion.VERSION_1_8 : JavaVersion.VERSION_17
+        }
+
         dependencies {
-            compileOnly('net.fabricmc:sponge-mixin:0.12.4+mixin.0.8.5') {
+            compileOnly(project(":Core"))
+
+            compileOnly(libs.mixin) {
                 exclude module: 'launchwrapper'
                 exclude module: 'guava'
                 exclude module: 'gson'
                 exclude module: 'commons-io'
             }
-            annotationProcessor('org.spongepowered:mixin:0.8.5:processor')
 
-            compileOnly(project(":Core"))
-        }
-
-        repositories {
-            maven {
-                name = "Spongepowered"
-                url = uri("https://repo.spongepowered.org/maven")
-            }
+            minecraft("com.mojang:minecraft:${project.ext.minecraftVersion}")
+            mappings(project.ext.minecraftMappings)
         }
 
         remapJar {
@@ -37,57 +60,48 @@ subprojects {
             targetNamespace = "official"
         }
 
-        loom {
-            mixin {
-                useLegacyMixinAp = false
-            }
-        }
+        loom.mixin.useLegacyMixinAp = false
 
-        jar {
-            manifest {
-                attributes(
-                    "MixinConfigs": "client.mixins.json"
-                )
-            }
-        }
-
+        jar.manifest.attributes(
+            "MixinConfigs": "client.mixins.json"
+        )
     }
 
-    plugins.withType(JavaPlugin).tap {
-        configureEach {
-            dependencies {
-                compileOnly("org.projectlombok:lombok:1.18.20")
-                annotationProcessor("org.projectlombok:lombok:1.18.20")
-            }
+    plugins.withType(JavaPlugin) {
+        java {
+            sourceCompatibility = JavaVersion.VERSION_1_8
+            targetCompatibility = JavaVersion.VERSION_1_8
+        }
 
-            repositories {
-                mavenCentral()
-            }
+        dependencies {
+            compileOnly(libs.lombok)
+            annotationProcessor(libs.lombok)
+        }
 
-            tasks.register("export") {
-                group = "multiclient"
-                dependsOn(tasks.hasProperty("build") ? tasks.named("build") : tasks.named("jar"))
+        tasks.register("export") {
+            group = rootProject.name
+            dependsOn(tasks.hasProperty("build") ? tasks.named("build") : tasks.named("jar"))
 
-                doLast {
-                    def inFile = "$projectDir/build/libs/${project.name}.jar"
-                    def outDir = "$rootDir/build/"
-                    println("Copying ${inFile} to ${outDir}")
-                    copy {
-                        from inFile
-                        into outDir
-                    }
+            doLast {
+                def inFile = "$projectDir/build/libs/${project.name}.jar"
+                def outDir = "$rootDir/build/"
+                println("Copying ${inFile} to ${outDir}")
+                copy {
+                    from inFile
+                    into outDir
                 }
             }
         }
     }
+
 }
 
 tasks.register("export") {
-    group = "multiclient"
+    group = rootProject.name
 
     doLast {
         subprojects.each { subproject ->
-            if (subproject.tasks.findByName("export") != null) {
+            if (subproject.tasks.findByName("export")) {
                 subproject.tasks.named("export")
             }
         }

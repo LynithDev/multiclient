@@ -1,26 +1,4 @@
 plugins {
     id "java"
-    id "fabric-loom" version "1.2.5"
-}
-
-repositories {
-    maven {
-        name = "cursed-mappings"
-        url = "https://raw.githubusercontent.com/BleachDev/cursed-mappings/main/"
-    }
-}
-
-String minecraftVersion = "1.8.9"
-String yarnVersion = "1.8.9+build.mcp"
-
-compileJava {
-    sourceCompatibility = JavaVersion.VERSION_1_8
-    targetCompatibility = JavaVersion.VERSION_1_8
-}
-
-dependencies {
-    compileOnly(project(":Core"))
-
-    minecraft("com.mojang:minecraft:${minecraftVersion}")
-    mappings("net.legacyfabric:yarn:${yarnVersion}")
+    alias(libs.plugins.loom)
 }

@@ -1,5 +1,6 @@
 plugins {
     id("java")
+    id("net.kyori.blossom") version "1.2.0"
 }
 
 compileJava {
@@ -14,34 +15,45 @@ configurations {
 
 repositories {
     maven {
-        name = "Spongepowered"
-        url = uri("https://repo.spongepowered.org/maven")
+        name = "Fabric"
+        url = uri("https://maven.fabricmc.net/")
     }
+}
+
+blossom {
+    replaceToken("%gradle.package%", rootProject.group)
 }
 
 dependencies {
     compileOnly(project(":Core"))
 
-    exportLib("org.ow2.asm:asm:9.4")
-    exportLib("org.ow2.asm:asm-commons:9.4")
-    exportLib("org.ow2.asm:asm-tree:9.4")
-    exportLib("org.ow2.asm:asm-util:9.4")
-    exportLib("com.google.guava:guava:31.1-jre")
-    exportLib('com.google.code.gson:gson:2.8.9')
-    exportLib('commons-io:commons-io:2.11.0')
-    exportLib('net.fabricmc:sponge-mixin:0.12.4+mixin.0.8.5') {
+    compileOnly(libs.bundles.asm)
+    compileOnly(libs.guava)
+    compileOnly(libs.gson)
+    compileOnly(libs.commons.io)
+
+    exportLib(libs.mixin) {
         exclude module: 'launchwrapper'
         exclude module: 'guava'
         exclude module: 'gson'
         exclude module: 'commons-io'
     }
-    annotationProcessor('org.spongepowered:mixin:0.8.5:processor')
+}
+
+tasks.register("addServices") {
+    file("src/main/resources/META-INF/services/org.spongepowered.asm.service.IGlobalPropertyService").withWriter {
+        it.write("${rootProject.group}.javaagent.mixin.ClientMixinGlobalPropertyService")
+    }
+
+    file("src/main/resources/META-INF/services/org.spongepowered.asm.service.IMixinService").withWriter {
+        it.write("${rootProject.group}.javaagent.mixin.ClientMixinService")
+    }
 }
 
 jar {
     manifest {
         attributes(
-            "Premain-Class": "dev.lynith.javaagent.AgentMain",
+            "Premain-Class": "${rootProject.group}.javaagent.AgentMain",
             "Can-Redefine-Classes": "true",
             "Can-Retransform-Classes": "true"
         )
@@ -49,11 +61,14 @@ jar {
 
     duplicatesStrategy(DuplicatesStrategy.EXCLUDE)
 
-    from {
-        configurations.exportLib.collect { it.isDirectory() ? it : zipTree(it) }
-    } {
-        exclude "META-INF/*.SF"
-        exclude "META-INF/*.DSA"
-        exclude "META-INF/*.RSA"
+    shouldRunAfter("addServices") {
+        from {
+            configurations.exportLib.collect { it.isDirectory() ? it : zipTree(it) }
+        } {
+            exclude "META-INF/*.SF"
+            exclude "META-INF/*.DSA"
+            exclude "META-INF/*.RSA"
+        }
     }
+
 }

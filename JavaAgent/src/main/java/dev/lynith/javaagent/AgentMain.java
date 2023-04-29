@@ -31,7 +31,7 @@ public class AgentMain {
 
             logger.log("Hooked");
             try {
-                Class<?> versionMain = Class.forName("dev.lynith.start.VersionMain");
+                Class<?> versionMain = Class.forName("%gradle.package%.start.VersionMain");
                 IVersionMain versionMainInstance = (IVersionMain) versionMain.getConstructor().newInstance();
 
                 Class<? extends IVersion> versionClass = versionMainInstance.getVersion();
