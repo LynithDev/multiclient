@@ -32,6 +32,7 @@ public class EventBus {
                     if (method.getParameterTypes().length == 1) {
                         if (method.getParameterTypes()[0].equals(event.getClass())) {
                             try {
+                                method.setAccessible(true);
                                 method.invoke(clazz, event);
                             } catch (Exception e) {
                                 e.printStackTrace();

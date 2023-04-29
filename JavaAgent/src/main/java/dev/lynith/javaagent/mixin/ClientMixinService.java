@@ -1,5 +1,6 @@
 package dev.lynith.javaagent.mixin;
 
+import dev.lynith.javaagent.ClassWrapper;
 import lombok.Getter;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.tree.ClassNode;
@@ -7,7 +8,6 @@ import org.spongepowered.asm.launch.platform.container.ContainerHandleVirtual;
 import org.spongepowered.asm.launch.platform.container.IContainerHandle;
 import org.spongepowered.asm.logging.ILogger;
 import org.spongepowered.asm.logging.LoggerAdapterConsole;
-import org.spongepowered.asm.mixin.MixinEnvironment;
 import org.spongepowered.asm.mixin.transformer.IMixinTransformer;
 import org.spongepowered.asm.mixin.transformer.IMixinTransformerFactory;
 import org.spongepowered.asm.service.*;
@@ -22,7 +22,7 @@ import java.util.Collections;
 public class ClientMixinService extends MixinServiceAbstract implements IMixinService, IClassProvider, IClassBytecodeProvider {
 
     @Getter
-    private IMixinTransformer transformer;
+    private static IMixinTransformer transformer;
 
     private final ReEntranceLock lock = new ReEntranceLock(1);
 
@@ -37,22 +37,10 @@ public class ClientMixinService extends MixinServiceAbstract implements IMixinSe
     }
 
     @Override
-    public MixinEnvironment.Phase getInitialPhase() {
-        return MixinEnvironment.Phase.DEFAULT;
-    }
-
-    @Override
     public void offer(IMixinInternal internal) {
         if (internal instanceof IMixinTransformerFactory) {
-            this.transformer = ((IMixinTransformerFactory) internal).createTransformer();
+            transformer = ((IMixinTransformerFactory) internal).createTransformer();
         }
-
-        super.offer(internal);
-    }
-
-    @Override
-    public void init() {
-
     }
 
     @Override
@@ -90,9 +78,11 @@ public class ClientMixinService extends MixinServiceAbstract implements IMixinSe
         return Collections.emptyList();
     }
 
+    private final IContainerHandle primaryContainer = new ContainerHandleVirtual(getName());
+
     @Override
     public IContainerHandle getPrimaryContainer() {
-        return new ContainerHandleVirtual(getName());
+        return primaryContainer;
     }
 
     @Override
@@ -132,22 +122,14 @@ public class ClientMixinService extends MixinServiceAbstract implements IMixinSe
 
     @Override
     public ClassNode getClassNode(String name) throws ClassNotFoundException {
-        String canonicalName = name.replace('/', '.');
+        byte[] bytes = ClassWrapper.getInstance().getTransformedBytes(name.replace('/', '.'), false);
+        if (bytes == null)
+            throw new ClassNotFoundException(name);
 
-        try {
-            InputStream stream = this.getClass().getClassLoader().getResourceAsStream(name + ".class");
-            ClassNode node = new ClassNode();
-
-            if (stream == null) {
-                return null;
-            }
-
-            new ClassReader(stream).accept(node, 0);
-            return node;
-        } catch (Exception e) {
-            throw new ClassNotFoundException(canonicalName, e);
-        }
-
+        ClassReader reader = new ClassReader(bytes);
+        ClassNode node = new ClassNode();
+        reader.accept(node, 0);
+        return node;
     }
 
     @Override

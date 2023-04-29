@@ -27,8 +27,9 @@ dependencies {
     exportLib("org.ow2.asm:asm-tree:9.4")
     exportLib("org.ow2.asm:asm-util:9.4")
     exportLib("com.google.guava:guava:31.1-jre")
-    exportLib("com.google.code.gson:gson:2.8.8")
-    exportLib('org.spongepowered:mixin:0.8.5') {
+    exportLib('com.google.code.gson:gson:2.8.9')
+    exportLib('commons-io:commons-io:2.11.0')
+    exportLib('net.fabricmc:sponge-mixin:0.12.4+mixin.0.8.5') {
         exclude module: 'launchwrapper'
         exclude module: 'guava'
         exclude module: 'gson'

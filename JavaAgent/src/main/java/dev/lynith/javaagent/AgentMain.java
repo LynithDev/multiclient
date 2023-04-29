@@ -9,36 +9,43 @@ import org.spongepowered.asm.launch.MixinBootstrap;
 import org.spongepowered.asm.mixin.MixinEnvironment;
 import org.spongepowered.asm.mixin.Mixins;
 
-import java.lang.instrument.ClassFileTransformer;
-import java.lang.instrument.IllegalClassFormatException;
+import java.io.IOException;
 import java.lang.instrument.Instrumentation;
-import java.security.ProtectionDomain;
+import java.lang.invoke.MethodHandle;
+import java.lang.invoke.MethodHandles;
+import java.lang.invoke.MethodType;
+import java.lang.reflect.Method;
+import java.net.URL;
+import java.net.URLClassLoader;
+import java.util.Arrays;
 
 public class AgentMain {
     public static void premain(String agentArgs, Instrumentation inst) {
         Logger logger = new Logger("agent");
 
-        MixinBootstrap.init();
-        MixinEnvironment.getDefaultEnvironment().setSide(MixinEnvironment.Side.CLIENT);
-        Mixins.addConfiguration("client.mixins.json");
+        try(ClassWrapper _wrapper = new ClassWrapper(new URL[0])) {
+            MixinEnvironment.getDefaultEnvironment().setSide(MixinEnvironment.Side.CLIENT);
+            Mixins.addConfiguration("client.mixins.json");
 
-        inst.addTransformer(new ClientMixinTransformer(), true);
+            inst.addTransformer(new ClientMixinTransformer(), true);
 
-        logger.log("Hooked");
-        try {
-            Class<?> versionMain = Class.forName("dev.lynith.start.VersionMain");
-            IVersionMain versionMainInstance = (IVersionMain) versionMain.getConstructor().newInstance();
+            logger.log("Hooked");
+            try {
+                Class<?> versionMain = Class.forName("dev.lynith.start.VersionMain");
+                IVersionMain versionMainInstance = (IVersionMain) versionMain.getConstructor().newInstance();
 
-            Class<? extends IVersion> versionClass = versionMainInstance.getVersion();
+                Class<? extends IVersion> versionClass = versionMainInstance.getVersion();
 
-            IVersion version = versionClass.getConstructor().newInstance();
-            ClientStartup.start(version, inst);
-        } catch (Exception e) {
-            e.printStackTrace();
+                IVersion version = versionClass.getConstructor().newInstance();
+                ClientStartup.start(version, inst);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        } catch (IOException e) {
+            throw new RuntimeException(e);
         }
     }
 
     public static void agentmain(String agentArgs, Instrumentation inst) {
-        System.out.println("AgentMain.agentmain");
     }
 }

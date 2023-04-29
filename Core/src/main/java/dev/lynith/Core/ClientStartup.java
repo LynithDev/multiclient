@@ -24,18 +24,21 @@ public class ClientStartup {
     }
 
     public ClientStartup(IVersion version, Instrumentation inst) {
+        if (instance == null)
+            instance = this;
         this.logger = new Logger("main");
         logger.log("Client Startup");
 
         this.bridge = version;
+        logger.log("Loaded version " + bridge.getVersion());
 
         EventBus.getEventBus().register(this);
-        logger.log("Registered EventBus");
+        logger.log("Registered self");
     }
 
     @Subscribe
     private void onMinecraftInit(MinecraftInitEvent event) {
-        logger.log("Minecraft Init");
+        logger.log("Minecraft Init MULTICLIENT");
     }
 
     @Subscribe

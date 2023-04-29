@@ -3,6 +3,7 @@ package dev.lynith.oneeightnine;
 import dev.lynith.Core.versions.IGame;
 import dev.lynith.Core.versions.IVersion;
 import net.minecraft.client.Minecraft;
+import org.spongepowered.asm.mixin.Mixins;
 
 public class Version implements IVersion {
 
