@@ -1,11 +1,9 @@
 plugins {
     id "java"
-    id "fabric-loom" version "1.1-SNAPSHOT"
+    id "fabric-loom" version "1.2.5"
 }
 
 String minecraftVersion = "1.19.4"
-String yarnVersion = "1.19.4+build.2"
-String minecraftVersionWordForm = "onenineteenfour"
 
 remapJar {
     sourceNamespace = "named"
@@ -16,7 +14,6 @@ dependencies {
     compileOnly(project(":Core"))
 
     minecraft("com.mojang:minecraft:${minecraftVersion}")
-//    mappings("net.fabricmc:yarn:${yarnVersion}")
     mappings(loom.officialMojangMappings())
 }
 

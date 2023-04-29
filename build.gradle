@@ -1,5 +1,6 @@
 plugins {
-    id "fabric-loom" version "1.1-SNAPSHOT" apply false
+    id "fabric-loom" version "1.2.5" apply false
+    id "io.freefair.lombok" version "8.0.1" apply true
 }
 
 group = "dev.lynith.multiclient"
@@ -7,26 +8,75 @@ version = "1.0.0"
 
 subprojects {
 
-    if (!file("build.gradle").exists()) {
+    if (!file("build.gradle").exists() || project.name == rootProject.name) {
         return
     }
 
-    tasks.register("export") {
-        group = "multiclient"
+    plugins.withId("fabric-loom") {
+        dependencies {
+            compileOnly('org.spongepowered:mixin:0.8.5') {
+                exclude module: 'launchwrapper'
+                exclude module: 'guava'
+                exclude module: 'gson'
+                exclude module: 'commons-io'
+            }
+            annotationProcessor('org.spongepowered:mixin:0.8.5:processor')
 
-        if (tasks.hasProperty("build")) {
-            dependsOn(tasks.named("build"))
-        } else {
-            dependsOn(tasks.named("jar"))
+            compileOnly(project(":Core"))
         }
 
-        doLast {
-            def inFile = "$projectDir/build/libs/${project.name}.jar"
-            def outDir = "$rootDir/build/"
-            println("Copying ${inFile} to ${outDir}")
-            copy {
-                from inFile
-                into outDir
+        repositories {
+            maven {
+                name = "Spongepowered"
+                url = uri("https://repo.spongepowered.org/maven")
+            }
+        }
+
+        remapJar {
+            sourceNamespace = "named"
+            targetNamespace = "official"
+        }
+
+        loom {
+            mixin {
+                useLegacyMixinAp = false
+            }
+        }
+
+        jar {
+            manifest {
+                attributes(
+                    "MixinConfigs": "client.mixins.json"
+                )
+            }
+        }
+
+    }
+
+    plugins.withType(JavaPlugin).tap {
+        configureEach {
+            dependencies {
+                compileOnly("org.projectlombok:lombok:1.18.20")
+                annotationProcessor("org.projectlombok:lombok:1.18.20")
+            }
+
+            repositories {
+                mavenCentral()
+            }
+
+            tasks.register("export") {
+                group = "multiclient"
+                dependsOn(tasks.hasProperty("build") ? tasks.named("build") : tasks.named("jar"))
+
+                doLast {
+                    def inFile = "$projectDir/build/libs/${project.name}.jar"
+                    def outDir = "$rootDir/build/"
+                    println("Copying ${inFile} to ${outDir}")
+                    copy {
+                        from inFile
+                        into outDir
+                    }
+                }
             }
         }
     }

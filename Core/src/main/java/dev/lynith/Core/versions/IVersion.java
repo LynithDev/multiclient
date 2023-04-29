@@ -2,10 +2,8 @@ package dev.lynith.Core.versions;
 
 public interface IVersion {
 
+    IGame getGame();
+
     String getVersion();
-
-    int getFps();
-
-    String getPlayerName(); // This gets implemented in the version specific project
 
 }

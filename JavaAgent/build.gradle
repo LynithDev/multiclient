@@ -7,16 +7,52 @@ compileJava {
     targetCompatibility = JavaVersion.VERSION_1_8
 }
 
-dependencies {
-    compileOnly(project(":Core"))
+configurations {
+    exportLib
+    compileOnly.extendsFrom(exportLib)
 }
 
-tasks.jar {
+repositories {
+    maven {
+        name = "Spongepowered"
+        url = uri("https://repo.spongepowered.org/maven")
+    }
+}
+
+dependencies {
+    compileOnly(project(":Core"))
+
+    exportLib("org.ow2.asm:asm:9.4")
+    exportLib("org.ow2.asm:asm-commons:9.4")
+    exportLib("org.ow2.asm:asm-tree:9.4")
+    exportLib("org.ow2.asm:asm-util:9.4")
+    exportLib("com.google.guava:guava:31.1-jre")
+    exportLib("com.google.code.gson:gson:2.8.8")
+    exportLib('org.spongepowered:mixin:0.8.5') {
+        exclude module: 'launchwrapper'
+        exclude module: 'guava'
+        exclude module: 'gson'
+        exclude module: 'commons-io'
+    }
+    annotationProcessor('org.spongepowered:mixin:0.8.5:processor')
+}
+
+jar {
     manifest {
-        attributes(new HashMap<String, String>() {{
-            put("Premain-Class", "dev.lynith.javaagent.AgentMain");
-            put("Can-Redefine-Classes", "true");
-            put("Can-Retransform-Classes", "true");
-        }});
+        attributes(
+            "Premain-Class": "dev.lynith.javaagent.AgentMain",
+            "Can-Redefine-Classes": "true",
+            "Can-Retransform-Classes": "true"
+        )
+    }
+
+    duplicatesStrategy(DuplicatesStrategy.EXCLUDE)
+
+    from {
+        configurations.exportLib.collect { it.isDirectory() ? it : zipTree(it) }
+    } {
+        exclude "META-INF/*.SF"
+        exclude "META-INF/*.DSA"
+        exclude "META-INF/*.RSA"
     }
 }

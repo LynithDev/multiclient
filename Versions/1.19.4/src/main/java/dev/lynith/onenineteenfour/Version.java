@@ -1,5 +1,6 @@
 package dev.lynith.onenineteenfour;
 
+import dev.lynith.Core.versions.IGame;
 import dev.lynith.Core.versions.IVersion;
 import net.minecraft.client.Minecraft;
 
@@ -9,13 +10,10 @@ public class Version implements IVersion {
         return "1.19.4";
     }
 
-    @Override
-    public String getPlayerName() {
-        return Minecraft.getInstance().player.getName().getString();
-    }
+    private final IGame game = new Game();
 
     @Override
-    public int getFps() {
-        return Minecraft.getInstance().getFps();
+    public IGame getGame() {
+        return game;
     }
 }
