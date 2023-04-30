@@ -38,7 +38,7 @@ Still got a lot left to do such as run configurations + a lot of code refactorin
 1. Run the `start_<version>` run configuration
 
 ## Building and using in a production environment
-1. Run the merge_<version> run configuration
+1. Run the `merge_<version>` run configuration
 2. The required file is in `build/<version>_merged.jar`
 3. Add the jar as a javaagent when Minecraft is launching
     - `-javaagent:<path to jar>`
