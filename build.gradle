@@ -16,6 +16,7 @@ subprojects {
         Integer _minecraftVersionInt = (project.ext.minecraftVersion.split("\\.")[0] + project.ext.minecraftVersion.split("\\.")[1]).toInteger()
         project.ext.isLegacyMinecraft = _minecraftVersionInt < 113
         project.ext.minecraftMappings = project.ext.isLegacyMinecraft ? "net.legacyfabric:yarn:${project.ext.minecraftVersion}+build.mcp" : loom.officialMojangMappings()
+        JavaVersion _javaVersion = _minecraftVersionInt < 117 ? JavaVersion.VERSION_1_8 : JavaVersion.VERSION_17
 
         repositories {
             maven {
@@ -37,9 +38,48 @@ subprojects {
         }
 
         compileJava {
-            sourceCompatibility = _minecraftVersionInt < 117 ? JavaVersion.VERSION_1_8 : JavaVersion.VERSION_17
-            targetCompatibility = _minecraftVersionInt < 117 ? JavaVersion.VERSION_1_8 : JavaVersion.VERSION_17
+            sourceCompatibility = _javaVersion
+            targetCompatibility = _javaVersion
         }
+
+        tasks.register("start_${project.name}") {
+            group = rootProject.name
+            dependsOn(rootProject.tasks.named("exportAll"))
+        }.get().finalizedBy(tasks.named("runClient"))
+
+        tasks.register("zipMerged", Zip) {
+            archiveFileName.set("${project.name}-merged.jar")
+            destinationDirectory.set(file("$rootDir/build/"))
+            from("$rootDir/build/${project.name}-merged")
+        }.get().finalizedBy(tasks.register("cleanMerged") {
+            doLast {
+                delete("$rootDir/build/${project.name}-merged")
+                delete("$rootDir/build/tmp")
+            }
+        })
+
+        tasks.register("merge_${project.name}") {
+            group = rootProject.name
+            dependsOn(rootProject.tasks.named("exportAll"))
+
+            doLast {
+                def versionFile = "$rootDir/build/${project.name}.jar"
+                def coreFile = "$rootDir/build/Core.jar"
+                def agentFile = "$rootDir/build/JavaAgent.jar"
+
+                def mergedFile = "$rootDir/build/${project.name}-merged"
+                println("Merging '${project.name}.jar', 'Core.jar' and 'JavaAgent.jar' to ${mergedFile}")
+
+                copy {
+                    from zipTree(agentFile)
+                    from zipTree(coreFile)
+                    from zipTree(versionFile)
+                    into mergedFile
+
+                    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+                }
+            }
+        }.get().finalizedBy(tasks.named("zipMerged"))
 
         dependencies {
             compileOnly(project(":Core"))
@@ -60,7 +100,30 @@ subprojects {
             targetNamespace = "official"
         }
 
-        loom.mixin.useLegacyMixinAp = false
+        if (_javaVersion == JavaVersion.VERSION_1_8) {
+            tasks.withType(JavaExec).configureEach {
+                javaLauncher = javaToolchains.launcherFor {
+                    languageVersion.set(JavaLanguageVersion.of(8))
+                }
+            }
+        }
+
+        loom {
+            mixin.useLegacyMixinAp = false
+
+            runs.client {
+                runDir = "run"
+                vmArgs "-javaagent:${rootDir}/build/${project.name}-merged.jar"
+
+                environment = "client"
+                defaultMainClass = "net.minecraft.client.main.Main"
+            }
+
+            runConfigs.configureEach {
+                programArgs "--version=$project.ext.minecraftVersion"
+                programArgs "--accessToken=0"
+            }
+        }
 
         jar.manifest.attributes(
             "MixinConfigs": "client.mixins.json"
@@ -79,7 +142,7 @@ subprojects {
         }
 
         tasks.register("export") {
-            group = rootProject.name
+            group = rootProject.name + " ${project.name}"
             dependsOn(tasks.hasProperty("build") ? tasks.named("build") : tasks.named("jar"))
 
             doLast {
@@ -96,7 +159,7 @@ subprojects {
 
 }
 
-tasks.register("export") {
+tasks.register("exportAll") {
     group = rootProject.name
 
     doLast {

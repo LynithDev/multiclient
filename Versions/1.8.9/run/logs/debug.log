@@ -1,0 +1,14 @@
+[12:42:31] [Client thread/INFO] (net.minecraft.client.Minecraft) Setting user: Player618
+[12:42:31] [Client thread/INFO] (net.minecraft.client.Minecraft) (Session ID is token:0:Player618)
+[12:42:32] [Client thread/INFO] (net.minecraft.client.Minecraft) LWJGL Version: 2.9.4
+[12:42:32] [Client thread/INFO] (net.minecraft.client.resources.SimpleReloadableResourceManager) Reloading ResourceManager: Default
+[12:42:32] [Client thread/ERROR] (net.minecraft.client.Minecraft) Couldn't initialize twitch stream
+[12:42:32] [Sound Library Loader/INFO] (net.minecraft.client.audio.SoundManager) Starting up SoundSystem...
+[12:42:32] [Thread-4/INFO] (net.minecraft.client.audio.SoundManager) Initializing LWJGL OpenAL
+[12:42:32] [Thread-4/INFO] (net.minecraft.client.audio.SoundManager) (The LWJGL binding of OpenAL.  For more information, see http://www.lwjgl.org)
+[12:42:32] [Thread-4/INFO] (net.minecraft.client.audio.SoundManager) OpenAL initialized.
+[12:42:33] [Sound Library Loader/INFO] (net.minecraft.client.audio.SoundManager) Sound engine started
+[12:42:33] [Client thread/INFO] (net.minecraft.client.renderer.texture.TextureMap) Created: 512x512 textures-atlas
+[12:42:35] [Client thread/INFO] (net.minecraft.client.Minecraft) Stopping!
+[12:42:35] [Client thread/INFO] (net.minecraft.client.audio.SoundManager) SoundSystem shutting down...
+[12:42:35] [Client thread/WARN] (net.minecraft.client.audio.SoundManager) Author: Paul Lamb, www.paulscode.com

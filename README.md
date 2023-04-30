@@ -6,7 +6,7 @@ Still got a lot left to do such as run configurations + a lot of code refactorin
 - [x] Multi version support (Tested 1.8.9 and 1.19.4)
 - [x] Mixins support
 - [ ] Run Configurations
-- [ ] Code Refactoring (This includes the god damn gradle files)
+- [x] Code Refactoring (This includes the god damn gradle files)
 - [ ] Test more versions
 
 ## How to add support for a new version
