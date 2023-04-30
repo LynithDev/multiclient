@@ -1,5 +1,5 @@
 # Multi Version Minecraft Client
-Not yet fully ready multi version Minecraft client project. 
+Multi version Minecraft client starter. 
 Still got a lot left to do such as run configurations + a lot of code refactoring
 
 ## Roadmap
