@@ -5,7 +5,7 @@ Still got a lot left to do such as run configurations + a lot of code refactorin
 ## Roadmap
 - [x] Multi version support (Tested 1.8.9 and 1.19.4)
 - [x] Mixins support
-- [ ] Run Configurations
+- [x] Run Configurations
 - [x] Code Refactoring (This includes the god damn gradle files)
 - [ ] Test more versions
 
@@ -33,6 +33,15 @@ Still got a lot left to do such as run configurations + a lot of code refactorin
         └── resources/
             └── client.mixins.json
 ```
+
+## Running
+1. Run the start_<version> run configuration
+
+## Building and using in a production environment
+1. Run the merge_<version> run configuration
+2. The required file is in `build/<version>_merged.jar`
+3. Add the jar as a javaagent when Minecraft is launching
+    - `-javaagent:<path to jar>`
 
 ## Adding new methods for the core to use
 1. Create a new interface in the version package
