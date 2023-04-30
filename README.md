@@ -35,7 +35,7 @@ Still got a lot left to do such as run configurations + a lot of code refactorin
 ```
 
 ## Running
-1. Run the start_<version> run configuration
+1. Run the `start_<version>` run configuration
 
 ## Building and using in a production environment
 1. Run the merge_<version> run configuration
