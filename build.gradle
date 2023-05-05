@@ -1,6 +1,20 @@
 group = "dev.lynith"
 version = "1.0.0"
 
+tasks.register("export") {
+    group = rootProject.name
+
+    def exportTasks = subprojects.findAll { it.tasks.findByName("export") }
+    dependsOn(exportTasks.collect({ it.tasks.named("export") }))
+}
+
+tasks.register("merge") {
+    group = rootProject.name
+
+    def mergeTasks = subprojects.findAll { it.tasks.findByName("merge_${it.name}") }
+    dependsOn(mergeTasks.collect({ it.tasks.named("merge_${it.name}") }))
+}
+
 subprojects {
     if (!file("build.gradle").exists() || project.name == rootProject.name) {
         return
@@ -45,11 +59,6 @@ subprojects {
             targetCompatibility = _javaVersion
         }
 
-        tasks.register("start_${project.name}") {
-            group = rootProject.name + " ${project.name}"
-            dependsOn(rootProject.tasks.named("export"))
-        }.get().finalizedBy(tasks.named("runClient"))
-
         tasks.register("zipMerged", Zip) {
             archiveFileName.set("${project.name}-merged.jar")
             destinationDirectory.set(file("$rootDir/build/"))
@@ -62,8 +71,7 @@ subprojects {
         })
 
         tasks.register("merge_${project.name}") {
-            group = rootProject.name + " ${project.name}"
-            dependsOn(rootProject.tasks.named("export"))
+            group = "${rootProject.name} ${project.name}"
 
             doLast {
                 def versionFile = "$rootDir/build/Versions/${project.name}.jar"
@@ -83,6 +91,21 @@ subprojects {
                 }
             }
         }.get().finalizedBy(tasks.named("zipMerged"))
+
+        tasks.register("start_${project.name}") {
+            group = "${rootProject.name} ${project.name}"
+
+            def agentExport = rootProject.project("JavaAgent").tasks.named("export")
+            def coreExport = rootProject.project("Core").tasks.named("export")
+            def versionExport = project.tasks.named("export")
+            def mergeTask = tasks.named("merge_${project.name}")
+
+            dependsOn(agentExport, coreExport, versionExport, mergeTask)
+
+            coreExport.get().mustRunAfter(agentExport)
+            versionExport.get().mustRunAfter(coreExport)
+            mergeTask.get().mustRunAfter(versionExport)
+        }.get().finalizedBy(tasks.named("runClient"))
 
         dependencies {
             compileOnly(project(":Core"))
@@ -163,28 +186,4 @@ subprojects {
         }
     }
 
-}
-
-tasks.register("export") {
-    group = rootProject.name
-
-    doLast {
-        subprojects.each { subproject ->
-            if (subproject.tasks.findByName("export")) {
-                subproject.tasks.named("export")
-            }
-        }
-    }
-}
-
-tasks.register("merge") {
-    group = rootProject.name
-
-    doLast {
-        subprojects.each { subproject ->
-            if (subproject.tasks.findByName("merge_${subproject.name}")) {
-                subproject.tasks.named("merge_${subproject.name}")
-            }
-        }
-    }
 }
