@@ -12,11 +12,14 @@ subprojects {
     }
 
     plugins.withId("fabric-loom") {
+
         project.ext.minecraftVersion = project.name
+
         Integer _minecraftVersionInt = (project.ext.minecraftVersion.split("\\.")[0] + project.ext.minecraftVersion.split("\\.")[1]).toInteger()
+        JavaVersion _javaVersion = _minecraftVersionInt < 117 ? JavaVersion.VERSION_1_8 : JavaVersion.VERSION_17
+
         project.ext.isLegacyMinecraft = _minecraftVersionInt < 113
         project.ext.minecraftMappings = project.ext.isLegacyMinecraft ? "net.legacyfabric:yarn:${project.ext.minecraftVersion}+build.mcp" : loom.officialMojangMappings()
-        JavaVersion _javaVersion = _minecraftVersionInt < 117 ? JavaVersion.VERSION_1_8 : JavaVersion.VERSION_17
 
         repositories {
             maven {
@@ -43,8 +46,8 @@ subprojects {
         }
 
         tasks.register("start_${project.name}") {
-            group = rootProject.name
-            dependsOn(rootProject.tasks.named("exportAll"))
+            group = rootProject.name + " ${project.name}"
+            dependsOn(rootProject.tasks.named("export"))
         }.get().finalizedBy(tasks.named("runClient"))
 
         tasks.register("zipMerged", Zip) {
@@ -59,8 +62,8 @@ subprojects {
         })
 
         tasks.register("merge_${project.name}") {
-            group = rootProject.name
-            dependsOn(rootProject.tasks.named("exportAll"))
+            group = rootProject.name + " ${project.name}"
+            dependsOn(rootProject.tasks.named("export"))
 
             doLast {
                 def versionFile = "$rootDir/build/${project.name}.jar"
@@ -95,17 +98,17 @@ subprojects {
             mappings(project.ext.minecraftMappings)
         }
 
-        remapJar {
-            sourceNamespace = "named"
-            targetNamespace = "official"
-        }
-
         if (_javaVersion == JavaVersion.VERSION_1_8) {
             tasks.withType(JavaExec).configureEach {
                 javaLauncher = javaToolchains.launcherFor {
                     languageVersion.set(JavaLanguageVersion.of(8))
                 }
             }
+        }
+
+        remapJar {
+            sourceNamespace = "named"
+            targetNamespace = "official"
         }
 
         loom {
@@ -124,34 +127,37 @@ subprojects {
                 programArgs "--accessToken=0"
             }
         }
-
-        jar.manifest.attributes(
-            "MixinConfigs": "client.mixins.json"
-        )
     }
 
-    plugins.withType(JavaPlugin) {
-        java {
-            sourceCompatibility = JavaVersion.VERSION_1_8
-            targetCompatibility = JavaVersion.VERSION_1_8
-        }
+    plugins.withType(JavaPlugin).tap {
+        configureEach {
+            java {
+                sourceCompatibility = JavaVersion.VERSION_1_8
+                targetCompatibility = JavaVersion.VERSION_1_8
+            }
 
-        dependencies {
-            compileOnly(libs.lombok)
-            annotationProcessor(libs.lombok)
-        }
+            dependencies {
+                compileOnly(libs.lombok)
+                annotationProcessor(libs.lombok)
+            }
 
-        tasks.register("export") {
-            group = rootProject.name + " ${project.name}"
-            dependsOn(tasks.hasProperty("build") ? tasks.named("build") : tasks.named("jar"))
+            tasks.register("export") {
+                group = rootProject.name
+                dependsOn(tasks.hasProperty("build") ? tasks.named("build") : tasks.named("jar"))
 
-            doLast {
-                def inFile = "$projectDir/build/libs/${project.name}.jar"
-                def outDir = "$rootDir/build/"
-                println("Copying ${inFile} to ${outDir}")
-                copy {
-                    from inFile
-                    into outDir
+                doLast {
+                    def inFile = "$projectDir/build/libs/${project.name}.jar"
+                    def outDir = "$rootDir/build/"
+
+                    if (project.parent.name == "Versions") {
+                        outDir += "Versions/"
+                    }
+
+                    println("Copying ${inFile} to ${outDir}")
+                    copy {
+                        from inFile
+                        into outDir
+                    }
                 }
             }
         }
@@ -159,13 +165,25 @@ subprojects {
 
 }
 
-tasks.register("exportAll") {
+tasks.register("export") {
     group = rootProject.name
 
     doLast {
         subprojects.each { subproject ->
             if (subproject.tasks.findByName("export")) {
                 subproject.tasks.named("export")
+            }
+        }
+    }
+}
+
+tasks.register("merge") {
+    group = rootProject.name
+
+    doLast {
+        subprojects.each { subproject ->
+            if (subproject.tasks.findByName("merge_${subproject.name}")) {
+                subproject.tasks.named("merge_${subproject.name}")
             }
         }
     }
