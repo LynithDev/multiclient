@@ -2,6 +2,8 @@
 Multi version Minecraft client starter. 
 Still got a lot left to do such as run configurations + a lot of code refactoring
 
+# See [zabu](https://github.com/LynithDev/zabu/) if you want a Gradle plugin instead
+
 ## Roadmap
 - [x] Multi version support (Tested 1.8.9 and 1.19.4)
 - [x] Mixins support
