@@ -1,12 +1,13 @@
 package dev.lynith.multiversion
 
 import org.gradle.api.JavaVersion
+import kotlin.properties.Delegates
 
 open class MultiVersionExtension {
-    var minecraftVersion: String = "1.8.9"
+    lateinit var minecraftVersion: String
     var fabricVersion: String? = null
     var forgeVersion: String? = null
 
-    var legacy: Boolean = true
-    var javaVersion: JavaVersion = JavaVersion.VERSION_1_8
+    var legacy by Delegates.notNull<Boolean>()
+    lateinit var javaVersion: JavaVersion
 }
