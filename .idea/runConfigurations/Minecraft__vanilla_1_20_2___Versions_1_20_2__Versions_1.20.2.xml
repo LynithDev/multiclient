@@ -1,0 +1,16 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" factoryName="Application" name="Minecraft -vanilla-1.20.2 (:Versions:1.20.2)" type="Application">
+    <option name="MAIN_CLASS_NAME" value="net.fabricmc.devlaunchinjector.Main"/>
+    <module name="client.Versions.1.20.2.main"/>
+    <option name="PROGRAM_PARAMETERS" value="--version=1.20.2 --accessToken=0"/>
+    <option name="VM_PARAMETERS" value="-Dfabric.dli.config=/home/lynith/Documents/Projects/Java/MinecraftClient/client/Versions/1.20.2/.gradle/loom-cache/launch.cfg -Dfabric.dli.env=client -javaagent:/home/lynith/Documents/Projects/Java/MinecraftClient/client/build/Versions/1.20.2/official.jar -Dfabric.dli.main=net.minecraft.client.main.Main"/>
+    <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/Versions/1.20.2/run/"/>
+    <method v="2">
+      <option enabled="true" name="Make"/>
+    </method>
+    <envs>
+      
+    </envs>
+    <shortenClasspath name="ARGS_FILE"/>
+  <classpathModifications/></configuration>
+</component>

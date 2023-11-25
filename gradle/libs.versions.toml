@@ -1,0 +1,26 @@
+[versions]
+mixin = "0.12.5+mixin.0.8.5"
+lombok = "1.18.20"
+asm = "9.4"
+guava = "31.1-jre"
+gson = "2.8.9"
+commons_io = "2.11.0"
+loom = "1.2-SNAPSHOT"
+
+[libraries]
+mixin = { module = "net.fabricmc:sponge-mixin", version.ref = "mixin" }
+lombok = { module = "org.projectlombok:lombok", version.ref = "lombok" }
+asm = { module = "org.ow2.asm:asm", version.ref = "asm" }
+asm-commons = { module = "org.ow2.asm:asm-commons", version.ref = "asm" }
+asm-tree = { module = "org.ow2.asm:asm-tree", version.ref = "asm" }
+asm-util = { module = "org.ow2.asm:asm-util", version.ref = "asm" }
+guava = { module = "com.google.guava:guava", version.ref = "guava" }
+gson = { module = "com.google.code.gson:gson", version.ref = "gson" }
+commons-io = { module = "commons-io:commons-io", version.ref = "commons_io" }
+
+[bundles]
+asm = [ "asm", "asm-commons", "asm-tree", "asm-util" ]
+
+[plugins]
+loom = { id = "fabric-loom", version.ref = "loom" }
+lombok = { id = "lombok", version.ref = "lombok" }
