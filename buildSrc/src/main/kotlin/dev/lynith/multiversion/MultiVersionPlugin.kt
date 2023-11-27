@@ -14,6 +14,7 @@ import org.gradle.jvm.toolchain.JavaToolchainService
 import org.gradle.kotlin.dsl.maven
 import dev.lynith.multiversion.tasks.ExportTask
 import dev.lynith.multiversion.tasks.MergeTask
+import dev.lynith.multiversion.tasks.RemapTask
 import dev.lynith.multiversion.tasks.StartTask
 
 class MultiVersionPlugin : Plugin<Project> {
@@ -32,12 +33,12 @@ class MultiVersionPlugin : Plugin<Project> {
                 targetCompatibility = extension.javaVersion
             }
 
-            val buildTargets: MutableMap<String, String> = mutableMapOf(
-                "vanilla" to extension.minecraftVersion
-            )
+            val buildMappings = mutableMapOf("vanilla" to "official")
+            val buildTargets = mutableMapOf("vanilla" to extension.minecraftVersion)
 
             if (extension.fabricVersion != null) {
                 buildTargets["fabric"] = extension.fabricVersion!!
+                buildMappings["fabric"] = "intermediary"
             }
 
             if (extension.forgeVersion != null) {
@@ -77,6 +78,15 @@ class MultiVersionPlugin : Plugin<Project> {
                 }
 
                 buildTargets.forEach { entry ->
+                    register("remap-${entry.key}-${entry.value}", RemapTask::class.java) {
+                        group = "client-${target.name}"
+                        description = "Remap the ${entry.key} ${entry.value} client"
+
+                        mapping = buildMappings[entry.key]!!
+
+                        dependsOn("merge-${target.name}")
+                    }
+
                     register("start-${entry.key}-${entry.value}", StartTask::class.java) {
                         group = "client-${target.name}"
                         description = "Start the ${entry.key} ${entry.value} client"
@@ -84,7 +94,7 @@ class MultiVersionPlugin : Plugin<Project> {
                         mapping = entry.key
                         version = entry.value
 
-                        dependsOn("merge-${target.name}")
+                        dependsOn("remap-${entry.key}-${entry.value}")
                     }
                 }
 
@@ -122,14 +132,6 @@ class MultiVersionPlugin : Plugin<Project> {
             loom.apply {
                 mixin.useLegacyMixinAp.set(false)
 
-                val buildMappings = mutableMapOf(
-                    "vanilla" to "official"
-                )
-
-                if (extension.fabricVersion != null) {
-                    buildMappings["fabric"] = "intermediary"
-                }
-
                 buildMappings.forEach { target ->
                     if (target.key == "fabric" && extension.fabricVersion == null) {
                         return@forEach
@@ -138,7 +140,7 @@ class MultiVersionPlugin : Plugin<Project> {
                     runConfigs.register("-${target.key}-${extension.minecraftVersion}") {
                         runDir("run")
 
-                        val jarName = "${extension.minecraftVersion}-merged.jar" // For now, we'll do this. once the remap task is done, we'll adjust this
+                        val jarName = "${extension.minecraftVersion}-${target.value}.jar" // For now, we'll do this. once the remap task is done, we'll adjust this
                         vmArgs("-javaagent:${rootDir}/build/Versions/${extension.minecraftVersion}/${jarName}")
 
                         environment = "client"

@@ -15,8 +15,6 @@ public class TestPlugin extends Plugin {
     @Override
     public void onInit(IVersion bridge) {
         logger.log("TestPlugin {}", getManifest().getName());
-
-
     }
 
 }
