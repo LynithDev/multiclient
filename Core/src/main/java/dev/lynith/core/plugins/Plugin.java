@@ -1,13 +1,19 @@
 package dev.lynith.core.plugins;
 
+import dev.lynith.core.ClientStartup;
+import dev.lynith.core.Logger;
 import dev.lynith.core.bridge.IVersion;
+import lombok.Getter;
 
 import java.lang.instrument.Instrumentation;
 
-public interface Plugin {
+@Getter
+public abstract class Plugin {
 
-    default void onPreInit(Instrumentation inst) {}
+    private PluginManifest manifest;
+    protected Logger logger;
 
-    default void onInit(IVersion bridge) {}
+    public void onPreInit(Instrumentation inst) {}
+    public abstract void onInit(IVersion bridge);
 
 }

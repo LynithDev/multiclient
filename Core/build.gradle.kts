@@ -4,3 +4,7 @@ plugins {
 
 group = "dev.lynith"
 version = "1.0.0"
+
+dependencies {
+    compileOnly(libs.gson)
+}

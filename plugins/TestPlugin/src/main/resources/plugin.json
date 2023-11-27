@@ -1,0 +1,13 @@
+{
+    "name": "TestPlugin",
+    "id": "testplugin",
+    "description": "This is a test description!",
+    "authors": [
+        "Lynith"
+    ],
+    "version": "1.0.0",
+    "main": "dev.lynith.test.TestPlugin",
+    "minecraftVersions": [
+      "1.8.9", "1.12.2"
+    ]
+}

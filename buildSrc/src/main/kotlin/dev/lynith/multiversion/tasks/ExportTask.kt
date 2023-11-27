@@ -26,7 +26,7 @@ open class ExportTask : DefaultTask() {
         var outFilePath = "${project.rootDir}/build/"
 
         if (project.parent != null && project.parent!!.name == "Versions") {
-            outFilePath += "${project.name}/"
+            outFilePath += "Versions/${project.name}/"
         }
 
         outFilePath += "${project.name}.jar"

@@ -41,8 +41,13 @@ public class Logger {
     }
 
     private String format(String message, Object... args) {
+        if (message == null) {
+            return "null";
+        }
+
         for (Object arg : args) {
-            message = message.replaceFirst("\\{\\}", arg.toString());
+            String argString = arg == null ? "null" : arg.toString();
+            message = message.replaceFirst("\\{\\}", argString);
         }
         return message;
     }

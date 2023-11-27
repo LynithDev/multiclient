@@ -34,7 +34,8 @@ public class EventBus {
                                 try {
                                     method.invoke(callback, args);
                                 } catch (Exception e) {
-                                    logger.error("Error while invoking event {}: {}", eventClass.getName(), e.getMessage());
+                                    logger.error("Error while invoking event {}: {}", eventClass.getName());
+                                    e.printStackTrace();
                                 }
                                 break;
                             }
@@ -50,7 +51,8 @@ public class EventBus {
                     }
                 }
             } catch (Exception e) {
-                logger.error("Error while emitting event " + event.getEvent().getName(), e);
+                logger.error("Error while emitting event {}", event.getEvent().getName());
+                e.printStackTrace();
             }
         }
     }

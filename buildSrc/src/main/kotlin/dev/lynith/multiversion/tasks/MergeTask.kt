@@ -9,7 +9,7 @@ import java.io.File
 
 open class MergeTask : DefaultTask() {
 
-    private val versionFile = project.file("${project.rootDir}/build/${project.name}/${project.name}.jar")
+    private val versionFile = project.file("${project.rootDir}/build/Versions/${project.name}/${project.name}.jar")
     private val coreFile = project.file("${project.rootDir}/build/Core.jar")
     private val agentFile = project.file("${project.rootDir}/build/JavaAgent.jar")
 
