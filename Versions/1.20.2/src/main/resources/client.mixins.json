@@ -1,10 +1,10 @@
 {
   "required": true,
   "compatibilityLevel": "JAVA_8",
-  "package": "dev.lynith.oneeightnine.mixins",
+  "package": "dev.lynith.onetwentytwo.mixins",
   "verbose": true,
   "minVersion": "0.8.5",
   "mixins": [
-
+    "MinecraftMixin"
   ]
 }

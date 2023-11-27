@@ -1,11 +1,10 @@
-package dev.lynith.oneeightnine;
+package dev.lynith.onetwentytwo;
 
 import dev.lynith.core.bridge.IMinecraft;
 import dev.lynith.core.bridge.IVersion;
 import dev.lynith.core.bridge.gui.IGui;
-import dev.lynith.oneeightnine.gui.Gui;
+import dev.lynith.onetwentytwo.gui.Gui;
 import lombok.Getter;
-import net.minecraft.client.MinecraftClient;
 
 @Getter
 public class Version implements IVersion {

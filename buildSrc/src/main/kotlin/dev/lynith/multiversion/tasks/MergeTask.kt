@@ -18,8 +18,6 @@ open class MergeTask : DefaultTask() {
 
     @TaskAction
     fun merge() {
-        println("[MultiVersion] Merging ${project.name}...")
-
         clean()
 
         var count = 0

@@ -29,15 +29,7 @@ public class Logger {
     }
 
     public void log(Object message, Object... args) {
-        System.out.printf((getString(message.toString())) + "%n", args);
-    }
-
-    public static void log(String name, Object message) {
-        new Logger(name).log(message);
-    }
-
-    public static void log(String name, Object message, Object... args) {
-        new Logger(name).log(message, args);
+        System.out.println(getString(format(message.toString(), args)));
     }
 
     public void error(Object message) {
@@ -45,15 +37,14 @@ public class Logger {
     }
 
     public void error(Object message, Object... args) {
-        System.err.printf((getString(message.toString())) + "%n", args);
+        System.err.println(getString(format(message.toString(), args)));
     }
 
-    public static void error(String name, Object message) {
-        new Logger(name).error(message);
-    }
-
-    public static void error(String name, Object message, Object... args) {
-        new Logger(name).error(message, args);
+    private String format(String message, Object... args) {
+        for (Object arg : args) {
+            message = message.replaceFirst("\\{\\}", arg.toString());
+        }
+        return message;
     }
 
     private String getString(String message) {
