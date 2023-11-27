@@ -13,3 +13,4 @@ include(":Core", ":JavaAgent")
 versions.forEach { version ->
     include(":Versions:${version}")
 }
+includeFlat("TestPlugin")

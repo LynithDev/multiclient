@@ -5,6 +5,7 @@ import dev.lynith.core.events.EventBus;
 import dev.lynith.core.events.impl.MinecraftInit;
 import dev.lynith.core.events.impl.MouseClick;
 import dev.lynith.core.events.impl.ShutdownEvent;
+import dev.lynith.core.plugins.PluginManager;
 import lombok.Getter;
 
 import java.lang.instrument.Instrumentation;
@@ -15,16 +16,22 @@ public class ClientStartup {
     @Getter
     private static ClientStartup instance;
 
+    private static PluginManager pluginManager;
+
     public static void main(String[] args) {
         System.out.println("This shouldn't be run directly.");
         System.exit(1);
     }
 
-    public static void launch(IVersion version) {
+    public static void launch(IVersion version, Instrumentation inst) {
         if (instance != null) {
             logger.log("ClientStartup instance already exists. This shouldn't happen.");
             return;
         }
+
+        pluginManager = new PluginManager();
+        pluginManager.init(inst);
+        logger.log("Initialized PluginManager and preinitialized plugins");
 
         logger.log("Launching version " + version.getMinecraft().getGameVersion());
         instance = new ClientStartup();
@@ -43,6 +50,9 @@ public class ClientStartup {
 
         this.eventBus = new EventBus();
         logger.log("Initialized EventBus");
+
+        pluginManager.initPlugins();
+        logger.log("Initialized Plugins");
 
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
             getEventBus().emit(ShutdownEvent.class);

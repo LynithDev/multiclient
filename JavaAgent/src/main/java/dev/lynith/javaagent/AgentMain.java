@@ -60,7 +60,7 @@ public class AgentMain {
             Class<? extends IVersion> versionClass = versionMainInstance.getVersion();
 
             IVersion version = versionClass.getConstructor().newInstance();
-            ClientStartup.launch(version);
+            ClientStartup.launch(version, inst);
 
             logger.log("Hooked");
         } catch (Exception e) {
